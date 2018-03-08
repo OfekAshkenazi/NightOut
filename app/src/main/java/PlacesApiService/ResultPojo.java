@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName;
  */
 
 public class ResultPojo {
-    @SerializedName("result")
+    @SerializedName("results")
     PlacePojo[] places;
     @SerializedName("next_page_token")
     String nextPage;

@@ -6,7 +6,13 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearSnapHelper;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SnapHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +36,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import Adapters.PlacesSearchAdapter;
+import PlacesApiService.PlacePojo;
 import PlacesApiService.PlacesServiceHelper;
 import PlacesApiService.ResultPojo;
 import ofeksprojects.ofek.com.nightout.MainNavActivity;
@@ -55,6 +63,9 @@ public class SearchFragment extends Fragment {
     private Place currentPlace;
     private ArrayList<Entities.Place> nearbyBarsList = new ArrayList<>();
     private ArrayList<Entities.Place> nearbyClubsList = new ArrayList<>();
+    private RecyclerView placesRV;
+    private PlacesSearchAdapter barsAdapter;
+
     public SearchFragment() {
         // Required empty public constructor
     }
@@ -75,7 +86,13 @@ public class SearchFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         final CardView searchCard = view.findViewById(R.id.searchCard_searchFrag);
+        placesRV = view.findViewById(R.id.resultList_searchFrag);
+        placesRV.setLayoutManager(new GridLayoutManager(placesRV.getContext(),1,GridLayoutManager.HORIZONTAL,false));
         assert getActivity()!=null;
+        SnapHelper snapHelper = new LinearSnapHelper();
+        snapHelper.attachToRecyclerView(placesRV);
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.getSupportActionBar().show();
         currentPlaceTV = view.findViewById(R.id.currentPlaceTV_fragSearch);
         searchCard.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,7 +115,7 @@ public class SearchFragment extends Fragment {
         radiusSeekBar.setOnProgressChangedListener(new BubbleSeekBar.OnProgressChangedListener() {
             @Override
             public void onProgressChanged(BubbleSeekBar bubbleSeekBar, int progress, float progressFloat) {
-                requestPlaces();
+
             }
 
             @Override
@@ -108,7 +125,9 @@ public class SearchFragment extends Fragment {
 
             @Override
             public void getProgressOnFinally(BubbleSeekBar bubbleSeekBar, int progress, float progressFloat) {
-
+                if (currentPlace!=null){
+                    requestPlaces();
+                }
             }
         });
     }
@@ -117,7 +136,13 @@ public class SearchFragment extends Fragment {
         PlacesServiceHelper.getBarsNearby(currentPlace.getLatLng().latitude, currentPlace.getLatLng().longitude, radiusSeekBar.getProgress(), new Callback<ResultPojo>() {
             @Override
             public void onResponse(Call<ResultPojo> call, Response<ResultPojo> response) {
-
+                for (PlacePojo placePojo : response.body().getPlaces()){
+                    Log.e("place name",placePojo.getName());
+                    Log.e("place address",placePojo.getTextualAddress());
+                }
+                nearbyBarsList = PlacesServiceHelper.placePojoToPlaceList(response.body());
+                barsAdapter = new PlacesSearchAdapter(nearbyBarsList);
+                placesRV.setAdapter(barsAdapter);
             }
 
             @Override

@@ -15,21 +15,21 @@ public class PlacePojo implements Serializable {
     private String id;
     @SerializedName("name")
     private String name;
-    @SerializedName("vicinity")
+    @SerializedName("formatted_address")
     private String textualAddress;
     @SerializedName("types")
     private String[] types;
     @SerializedName("geometry")
     private Geometry location;
     @SerializedName("photos")
-    private PlacePhotoPojo[] photo;
+    private PlacePhotoPojo[] photos;
 
-    public PlacePhotoPojo[] getPhoto() {
-        return photo;
+    public PlacePhotoPojo[] getPhotos() {
+        return photos;
     }
 
-    public void setPhoto(PlacePhotoPojo[] photo) {
-        this.photo = photo;
+    public void setPhotos(PlacePhotoPojo[] photos) {
+        this.photos = photos;
     }
 
     public String getIconUrl() {

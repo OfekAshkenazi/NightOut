@@ -1,6 +1,8 @@
 package Entities;
 
-import java.io.Serializable;
+import com.orm.SugarRecord;
+import com.orm.dsl.Ignore;
+import com.orm.dsl.Unique;
 
 import PlacesApiService.PlacePojo;
 
@@ -8,19 +10,26 @@ import PlacesApiService.PlacePojo;
  * Created by Ofek on 22-Feb-18.
  */
 
-public class Place implements Serializable {
+public class Place extends SugarRecord{
     private String iconUrl;
-    private String id;
+    @Unique
+    private String placeId;
     private String name;
     private String textualAddress;
     private String[] types;
     private double lat;
     private double lang;
+    @Ignore
     private PlacePhoto[] photos;
     private boolean isFavorite = false;
+
+    public Place() {
+
+    }
+
     public Place(String iconUrl, String id, String name, String textualAddress, String[] types, double lat, double lang, PlacePhoto[] photos) {
         this.iconUrl = iconUrl;
-        this.id = id;
+        this.placeId = id;
         this.name = name;
         this.textualAddress = textualAddress;
         this.types = types;
@@ -41,8 +50,8 @@ public class Place implements Serializable {
         return iconUrl;
     }
 
-    public String getId() {
-        return id;
+    public String getPlaceId() {
+        return placeId;
     }
 
     public String getName() {
@@ -69,7 +78,7 @@ public class Place implements Serializable {
         return photos;
     }
 
-    public static class PlacePhoto{
+    public static class PlacePhoto {
         public PlacePhoto(int height, int width, String reference) {
             this.height = height;
             this.width = width;
@@ -101,10 +110,13 @@ public class Place implements Serializable {
                 pojo.getTypes(),
                 pojo.getLocation().getLocation().getLat(),
                 pojo.getLocation().getLocation().getLng(),
-                getPhotosFromPojo(pojo.getPhoto()));
+                getPhotosFromPojo(pojo.getPhotos()));
     }
 
     private static PlacePhoto[] getPhotosFromPojo(PlacePojo.PlacePhotoPojo[] photosPojo) {
+        if (photosPojo == null){
+            return new PlacePhoto[]{};
+        }
         PlacePhoto[] photos = new PlacePhoto[photosPojo.length];
         for (int i = 0;i<photosPojo.length;i++){
             PlacePojo.PlacePhotoPojo photoPojo = photosPojo[i];
