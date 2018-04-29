@@ -1,4 +1,4 @@
-package ofeksprojects.ofek.com.nightout;
+package Fragments;
 
 
 import android.os.Bundle;
@@ -18,6 +18,7 @@ import Adapters.ShowMapCallback;
 import Entities.Place;
 import PlacesApiService.PlacesServiceHelper;
 import SQLDatabase.NightOutDao;
+import ofeksprojects.ofek.com.nightout.R;
 
 
 /**
@@ -28,6 +29,7 @@ public class FavouritesFragment extends Fragment {
 
     private RecyclerView favouritesRV;
     private ArrayList<Place> favPlaces;
+    private FavouritesAdapter favouritesAdapter;
 
     public FavouritesFragment() {
         // Required empty public constructor
@@ -44,11 +46,19 @@ public class FavouritesFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        favouritesAdapter = new FavouritesAdapter(null, (ShowMapCallback) getActivity(),getContext());
         favouritesRV = view.findViewById(R.id.favouritesRV);
         favouritesRV.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        favouritesRV.setAdapter(favouritesAdapter);
         Thread thread  = new Thread(new Runnable() {
             @Override
             public void run() {
+                favouritesRV.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        favouritesAdapter.activateLoadingView();
+                    }
+                });
                 favPlaces = NightOutDao.getAllFavouritePlaces();
                 for (Place place: favPlaces){
                     place.setPhotos(PlacesServiceHelper.getPlacePhotos(place));
@@ -60,11 +70,10 @@ public class FavouritesFragment extends Fragment {
     }
 
     private void onFavPlacesLoaded() {
-        final FavouritesAdapter favouritesAdapter = new FavouritesAdapter(favPlaces, (ShowMapCallback) getActivity());
         favouritesRV.post(new Runnable() {
             @Override
             public void run() {
-                favouritesRV.setAdapter(favouritesAdapter);
+                favouritesAdapter.setNewData(favPlaces);
             }
         });
     }

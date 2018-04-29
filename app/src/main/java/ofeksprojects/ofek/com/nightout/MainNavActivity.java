@@ -4,20 +4,30 @@ package ofeksprojects.ofek.com.nightout;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.orm.SugarContext;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.sothree.slidinguppanel.ScrollableViewHelper;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import Adapters.ShowMapCallback;
+import Entities.Place;
+import Fragments.FavouritesFragment;
 import Fragments.SearchFragment;
+import SQLDatabase.NightOutDao;
 import ofeksprojects.ofek.com.nightout.BaseActivity.BaseDrawerActivity;
 
-public class MainNavActivity extends BaseDrawerActivity implements OnMapReadyCallback {
+public class MainNavActivity extends BaseDrawerActivity implements OnMapReadyCallback, ShowMapCallback {
 
     private SparseArray<Fragment> menuItemsFragments;
     private MapView mapView;
@@ -27,8 +37,8 @@ public class MainNavActivity extends BaseDrawerActivity implements OnMapReadyCal
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        NightOutDao.init(this);
         setMenuItemsFragment();
-        SugarContext.init(this);
         setMap();
         mapView.onCreate(savedInstanceState);
         setPanel();
@@ -37,7 +47,6 @@ public class MainNavActivity extends BaseDrawerActivity implements OnMapReadyCal
     private void setPanel() {
         mapPanel = findViewById(R.id.mapPanel_navActivity);
         mapPanel.setOverlayed(true);
-        mapPanel.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
         mapPanel.setScrollableView(mapView);
         mapPanel.setScrollableViewHelper(new NestedScrollableViewHelper());
     }
@@ -47,6 +56,7 @@ public class MainNavActivity extends BaseDrawerActivity implements OnMapReadyCal
     private void setMenuItemsFragment(){
         menuItemsFragments = new SparseArray<>();
         menuItemsFragments.append(R.id.nav_search,new SearchFragment());
+        menuItemsFragments.append(R.id.nav_favorites,new FavouritesFragment());
         setMenuItemsFragments(menuItemsFragments);
     }
     @Override
@@ -77,7 +87,6 @@ public class MainNavActivity extends BaseDrawerActivity implements OnMapReadyCal
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        SugarContext.terminate();
         mapView.onDestroy();
     }
 
@@ -85,6 +94,19 @@ public class MainNavActivity extends BaseDrawerActivity implements OnMapReadyCal
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
     }
+
+    @Override
+    public void showMap(Place place) {
+        mapPanel.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+        Log.e("place lat",place.getLat()+"");
+        Log.e("place lng", place.getLng()+"");
+        map.addMarker(new MarkerOptions().title(place.getName()).position(new LatLng(place.getLat(),place.getLng()))).setTag(place.getPlaceId());
+        map.moveCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+        .target(new LatLng(place.getLat(),place.getLng()))
+        .zoom(18.0f)
+        .build()));
+    }
+
     public class NestedScrollableViewHelper extends ScrollableViewHelper {
         @Override
         public int getScrollableViewScrollPosition(View scrollableView, boolean isSlidingUp) {
@@ -100,5 +122,6 @@ public class MainNavActivity extends BaseDrawerActivity implements OnMapReadyCal
                 return 0;
             }
         }
+
     }
 }

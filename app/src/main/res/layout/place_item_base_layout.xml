@@ -4,58 +4,110 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:background="@color/dark_blue">
-        <android.support.constraint.ConstraintLayout
-            android:layout_width="350dp"
-            android:layout_height="350dp"
-            android:background="@drawable/place_item_background_gradient"
-            android:layout_margin="5dp">
+    android:gravity="center">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="350dp"
+        android:layout_height="350dp"
+        android:layout_margin="5dp"
+        android:background="@drawable/place_item_background_gradient">
+
+        <TextView
+            android:id="@+id/addressTV_placeAdapter"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="HaBarzel, Tel Aviv, Israel"
+            android:textColor="@color/colorAccent"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/nameTV_placeAdapter"
+            app:layout_constraintStart_toStartOf="@+id/nameTV_placeAdapter"
+            app:layout_constraintTop_toBottomOf="@+id/nameTV_placeAdapter" />
+
+        <TextView
+            android:id="@+id/nameTV_placeAdapter"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:maxLines="1"
+            android:text="The Warehouse"
+            android:textAlignment="center"
+            android:textColor="@color/colorPrimary"
+            android:textSize="24sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imagePager_placeAdapter" />
+
+        <CostumeViews.ImageRecyclerView
+            android:id="@+id/imagePager_placeAdapter"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="12dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/favoriteButton_placeAdapter" />
+
+        <com.github.ivbaranov.mfb.MaterialFavoriteButton
+            android:id="@+id/favoriteButton_placeAdapter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/relativeLayout2" />
+
+        <ImageView
+            android:id="@+id/mapButton_placeAdapter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintBottom_toBottomOf="@+id/wazeBtn_placesAdapter"
+            app:layout_constraintEnd_toStartOf="@+id/wazeBtn_placesAdapter"
+            app:layout_constraintTop_toTopOf="@+id/wazeBtn_placesAdapter"
+            app:srcCompat="@drawable/ic_map" />
+
+        <ImageView
+            android:id="@+id/wazeBtn_placesAdapter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintBottom_toBottomOf="@+id/addressTV_placeAdapter"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/addressTV_placeAdapter"
+            app:srcCompat="@drawable/ic_waze" />
+
+        <RelativeLayout
+            android:id="@+id/relativeLayout2"
+            android:layout_width="199dp"
+            android:layout_height="28dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <TextView
-                android:id="@+id/addressTV_placeAdapter"
-                android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:layout_marginBottom="16dp"
-                android:paddingStart="5dp"
-                android:text="HaBarzel, Tel Aviv, Israel"
-                android:textAlignment="center"
-                android:textColor="@color/colorAccent"
-                android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintRight_toRightOf="parent" />
-
-            <TextView
-                android:id="@+id/nameTV_placeAdapter"
-                android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:layout_marginBottom="8dp"
-                android:maxLines="1"
-                android:text="The Warehouse"
-                android:textAlignment="center"
-                android:textColor="@color/colorPrimary"
-                android:textSize="24sp"
-                app:layout_constraintBottom_toTopOf="@+id/addressTV_placeAdapter"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <CostumeViews.ImageRecyclerView
-                android:id="@+id/imagePager_placeAdapter"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintBottom_toTopOf="@+id/nameTV_placeAdapter"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/favoriteButton_placeAdapter" />
-            <com.github.ivbaranov.mfb.MaterialFavoriteButton
-                android:id="@+id/favoriteButton_placeAdapter"
+                android:id="@+id/distanceTV_placeAdapter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:scaleType="center"
-                app:mfb_size="1" />
-        </android.support.constraint.ConstraintLayout>
+                android:layout_toStartOf="@id/textView4"
+                android:text="15" />
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="5dp"
+                android:layout_marginStart="5dp"
+                android:text="@string/km_tv_place_adapter_item" />
+        </RelativeLayout>
+    </android.support.constraint.ConstraintLayout>
 </RelativeLayout>

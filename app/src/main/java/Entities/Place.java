@@ -1,40 +1,41 @@
 package Entities;
 
-import com.orm.SugarRecord;
-import com.orm.dsl.Ignore;
-import com.orm.dsl.Unique;
-
 import PlacesApiService.PlacePojo;
 
 /**
  * Created by Ofek on 22-Feb-18.
  */
-
-public class Place extends SugarRecord{
-    private String iconUrl;
-    @Unique
+public class Place{
     private String placeId;
+    private String iconUrl;
     private String name;
     private String textualAddress;
     private String[] types;
     private double lat;
-    private double lang;
-    @Ignore
+    private double lng;
     private PlacePhoto[] photos;
     private boolean isFavorite = false;
 
     public Place() {
 
     }
-
-    public Place(String iconUrl, String id, String name, String textualAddress, String[] types, double lat, double lang, PlacePhoto[] photos) {
+    public Place(String id, String iconUrl, String name, String textualAddress, String[] types, double lat, double lng) {
         this.iconUrl = iconUrl;
         this.placeId = id;
         this.name = name;
         this.textualAddress = textualAddress;
         this.types = types;
         this.lat = lat;
-        this.lang = lang;
+        this.lng = lng;
+    }
+    public Place(String id, String iconUrl, String name, String textualAddress, String[] types, double lat, double lng, PlacePhoto[] photos) {
+        this.iconUrl = iconUrl;
+        this.placeId = id;
+        this.name = name;
+        this.textualAddress = textualAddress;
+        this.types = types;
+        this.lat = lat;
+        this.lng = lng;
         this.photos = photos;
     }
 
@@ -70,12 +71,16 @@ public class Place extends SugarRecord{
         return lat;
     }
 
-    public double getLang() {
-        return lang;
+    public double getLng() {
+        return lng;
     }
 
     public PlacePhoto[] getPhotos() {
         return photos;
+    }
+
+    public void setPhotos(PlacePhoto[] photos) {
+        this.photos = photos;
     }
 
     public static class PlacePhoto {
@@ -103,8 +108,8 @@ public class Place extends SugarRecord{
     }
 
     public static Place getPlaceFromPlacePojo(PlacePojo pojo){
-        return new Place(pojo.getIconUrl(),
-                pojo.getId(),
+        return new Place(pojo.getId(),
+                pojo.getIconUrl(),
                 pojo.getName(),
                 pojo.getTextualAddress(),
                 pojo.getTypes(),

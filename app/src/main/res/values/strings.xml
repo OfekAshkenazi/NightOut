@@ -20,4 +20,5 @@
     <string name="navigation_item_favorites">Favorites</string>
     <string name="navigation_ite_search">Search</string>
     <string name="search_card_search_fragment_text">Costume search</string>
+    <string name="km_tv_place_adapter_item">Km</string>
 </resources>

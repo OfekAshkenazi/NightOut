@@ -1,6 +1,7 @@
 package CostumeViews;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,6 +12,7 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ofeksprojects.ofek.com.nightout.R;
@@ -37,6 +39,10 @@ public class ImageRecyclerView extends RecyclerView {
         setAdapter(adapter);
     }
 
+    public void setPhotos(ArrayList<Bitmap> photos) {
+        setAdapter(new BitmapsAdapter(photos));
+    }
+
     private class Adapter extends BaseQuickAdapter<String,BaseViewHolder>{
 
         public Adapter(@Nullable List<String> data) {
@@ -47,6 +53,18 @@ public class ImageRecyclerView extends RecyclerView {
         protected void convert(BaseViewHolder helper, String item) {
             ImageView imageView = helper.getView(R.id.image_ImagePagerView);
             Picasso.with(imageView.getContext()).load(item).fit().into(imageView);
+        }
+    }
+    private class BitmapsAdapter extends BaseQuickAdapter<Bitmap,BaseViewHolder>{
+
+        public BitmapsAdapter(@Nullable List<Bitmap> data) {
+            super(R.layout.image_view_pager_lay,data);
+        }
+
+        @Override
+        protected void convert(BaseViewHolder helper, Bitmap item) {
+            ImageView imageView = helper.getView(R.id.image_ImagePagerView);
+            imageView.setImageBitmap(item);
         }
     }
 }

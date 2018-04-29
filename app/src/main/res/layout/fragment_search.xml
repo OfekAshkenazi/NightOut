@@ -4,68 +4,88 @@
     android:id="@+id/mainContent_searchFrag"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dark_blue"
     tools:context="Fragments.SearchFragment">
 
-    <RelativeLayout
+    <android.support.v7.widget.Toolbar
         android:id="@+id/searContentLay_searchFrag"
         android:layout_width="match_parent"
-        android:layout_height="?actionBarSize"
-        android:background="@color/dark_blue">
-        <android.support.v7.widget.CardView
-            android:id="@+id/searchCard_searchFrag"
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginEnd="30dp"
-            android:layout_marginStart="30dp"
-            android:layout_marginTop="5dp"
-            app:cardCornerRadius="5dp"
-            app:cardElevation="5dp"
-            app:cardBackgroundColor="@android:color/white">
+        android:layout_height="70dp"
+        android:background="@color/colorPrimaryDark"
+        android:padding="5dp"
+        app:popupTheme="@style/AppTheme.PopupOverlay">
 
-            <LinearLayout
+        <RelativeLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize">
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/searchCard_searchFrag"
                 android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginBottom="5dp"
+                android:layout_marginEnd="30dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="5dp"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="5dp"
+                app:cardElevation="5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:src="@android:drawable/ic_menu_search" />
+
+                    <TextView
+                        android:id="@+id/currentPlaceTV_fragSearch"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="4"
+                        android:gravity="center"
+                        android:text="@string/search_card_search_fragment_text" />
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+            <com.xw.repo.BubbleSeekBar
+                android:id="@+id/radiusPicker_searchFrag"
+                style="@style/AppTheme"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_below="@id/searchCard_searchFrag"
+                app:bsb_max="15000"
+                app:bsb_min="500"
+                app:bsb_show_section_text="true" />
+        </RelativeLayout>
+    </android.support.v7.widget.Toolbar>
+    <android.support.design.widget.TabLayout
+        android:id="@+id/tabLay_searchFrag"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_below="@id/searContentLay_searchFrag">
+            <android.support.design.widget.TabItem
+                android:id="@+id/barTabItem_searchFrag"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_gravity="center_vertical">
-
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:src="@android:drawable/ic_menu_search" />
-
-                <TextView
-                    android:id="@+id/currentPlaceTV_fragSearch"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="4"
-                    android:gravity="center"
-                    android:text="@string/search_card_search_fragment_text" />
-            </LinearLayout>
-        </android.support.v7.widget.CardView>
-
-        <com.xw.repo.BubbleSeekBar
-            android:id="@+id/radiusPicker_searchFrag"
-            style="@style/AppTheme"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/searchCard_searchFrag"
-            android:layout_alignParentBottom="true"
-            app:bsb_min="500"
-            app:bsb_max="15000"
-            app:bsb_show_section_text="true" />
-    </RelativeLayout>
-    <android.support.design.widget.CoordinatorLayout
+                android:text="Bars" />
+            <android.support.design.widget.TabItem
+                android:id="@+id/clubTabItem_searchFra"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:text="Clubs"/>
+    </android.support.design.widget.TabLayout>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/resultList_searchFrag"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/searContentLay_searchFrag">
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/resultList_searchFrag"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"/>
-    </android.support.design.widget.CoordinatorLayout>
+        android:orientation="vertical"
+        android:layout_below="@id/tabLay_searchFrag"/>
 
 
 </RelativeLayout>

@@ -6,6 +6,8 @@
     <color name="purple">#d400ff</color>
     <color name="dark_blue">#300056</color>
     <color name="light_blue">#6350c5</color>
-    <color name="bordeaux">#811e73</color>
+    <color name="bordeaux">#8f48c2</color>
     <color name="dark_blacked_purple">#400000</color>
+    <color name="purple_club">#8f48c2</color>
+    <color name="purple_pub">#b248c2</color>
 </resources>

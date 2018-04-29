@@ -54,7 +54,8 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
     implementation 'com.xw.repo:bubbleseekbar:3.14-lite'
     implementation 'com.romandanylyk:pageindicatorview:1.0.0@aar'
-    implementation 'com.github.satyan:sugar:1.5'
+    implementation 'org.litepal.android:core:1.6.1'
     implementation 'com.sothree.slidinguppanel:library:3.4.0'
+    implementation 'com.github.adhishlal:gifloader:1.1'
 }
 apply plugin: 'com.google.gms.google-services'

@@ -5,11 +5,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SnapHelper;
@@ -17,10 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -28,25 +25,20 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
-import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.location.places.ui.SupportPlaceAutocompleteFragment;
 import com.xw.repo.BubbleSeekBar;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import Adapters.PlacesSearchAdapter;
-import PlacesApiService.PlacePojo;
+import Adapters.ShowMapCallback;
 import PlacesApiService.PlacesServiceHelper;
 import PlacesApiService.ResultPojo;
-import ofeksprojects.ofek.com.nightout.MainNavActivity;
+import SQLDatabase.NightOutDao;
 import ofeksprojects.ofek.com.nightout.R;
-import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
@@ -54,17 +46,21 @@ import static android.app.Activity.RESULT_OK;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class SearchFragment extends Fragment {
+public class SearchFragment extends Fragment implements TabLayout.OnTabSelectedListener {
 
     private static final int SEARCH_AUTO_COMPLETE_REQUEST = 154;
+    private static final int SEARCH_BARS = 0;
+    private static final int SEARCH_NIGHT_CLUBS = 1;
     private SupportPlaceAutocompleteFragment searchFragment;
     private BubbleSeekBar radiusSeekBar;
     private TextView currentPlaceTV;
     private Place currentPlace;
-    private ArrayList<Entities.Place> nearbyBarsList = new ArrayList<>();
-    private ArrayList<Entities.Place> nearbyClubsList = new ArrayList<>();
     private RecyclerView placesRV;
-    private PlacesSearchAdapter barsAdapter;
+    private PlacesSearchAdapter placesAdapter;
+    ArrayList<Entities.Place> barsList;
+    ArrayList<Entities.Place> clubsList;
+    private CardView searchCard;
+    private TabLayout tabLayout;
 
     public SearchFragment() {
         // Required empty public constructor
@@ -85,15 +81,17 @@ public class SearchFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        final CardView searchCard = view.findViewById(R.id.searchCard_searchFrag);
-        placesRV = view.findViewById(R.id.resultList_searchFrag);
+        setViews();
+        placesAdapter = new PlacesSearchAdapter(new ArrayList<Entities.Place>(),getContext(), (ShowMapCallback) getActivity());
+        tabLayout.addOnTabSelectedListener(this);
         placesRV.setLayoutManager(new GridLayoutManager(placesRV.getContext(),1,GridLayoutManager.HORIZONTAL,false));
+        placesRV.setAdapter(placesAdapter);
         assert getActivity()!=null;
         SnapHelper snapHelper = new LinearSnapHelper();
         snapHelper.attachToRecyclerView(placesRV);
         AppCompatActivity activity = (AppCompatActivity) getActivity();
+        assert activity.getSupportActionBar()!=null;
         activity.getSupportActionBar().show();
-        currentPlaceTV = view.findViewById(R.id.currentPlaceTV_fragSearch);
         searchCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -111,7 +109,7 @@ public class SearchFragment extends Fragment {
                 }
             }
         });
-        radiusSeekBar = view.findViewById(R.id.radiusPicker_searchFrag);
+
         radiusSeekBar.setOnProgressChangedListener(new BubbleSeekBar.OnProgressChangedListener() {
             @Override
             public void onProgressChanged(BubbleSeekBar bubbleSeekBar, int progress, float progressFloat) {
@@ -125,24 +123,35 @@ public class SearchFragment extends Fragment {
 
             @Override
             public void getProgressOnFinally(BubbleSeekBar bubbleSeekBar, int progress, float progressFloat) {
-                if (currentPlace!=null){
-                    requestPlaces();
-                }
+
             }
         });
     }
 
+    private void setViews() {
+        View view = getView();
+        assert view!=null;
+        tabLayout = view.findViewById(R.id.tabLay_searchFrag);
+        searchCard = view.findViewById(R.id.searchCard_searchFrag);
+        placesRV = view.findViewById(R.id.resultList_searchFrag);
+        currentPlaceTV = view.findViewById(R.id.currentPlaceTV_fragSearch);
+        radiusSeekBar = view.findViewById(R.id.radiusPicker_searchFrag);
+    }
+
     private void requestPlaces() {
-        PlacesServiceHelper.getBarsNearby(currentPlace.getLatLng().latitude, currentPlace.getLatLng().longitude, radiusSeekBar.getProgress(), new Callback<ResultPojo>() {
+        if (currentPlace == null){
+            return;
+        }
+        placesAdapter.activateLoadingView();
+        PlacesServiceHelper.getBarsNearby(currentPlace, radiusSeekBar.getProgress(), new Callback<ResultPojo>() {
             @Override
             public void onResponse(Call<ResultPojo> call, Response<ResultPojo> response) {
-                for (PlacePojo placePojo : response.body().getPlaces()){
-                    Log.e("place name",placePojo.getName());
-                    Log.e("place address",placePojo.getTextualAddress());
+                Log.e("request url",call.request().url().toString());
+                barsList =PlacesServiceHelper.placePojoToPlaceList(response.body());
+                checkForFavourites(barsList);
+                if (tabLayout.getSelectedTabPosition()==0){
+                    placesAdapter.setNewData(barsList);
                 }
-                nearbyBarsList = PlacesServiceHelper.placePojoToPlaceList(response.body());
-                barsAdapter = new PlacesSearchAdapter(nearbyBarsList);
-                placesRV.setAdapter(barsAdapter);
             }
 
             @Override
@@ -150,6 +159,32 @@ public class SearchFragment extends Fragment {
 
             }
         });
+        PlacesServiceHelper.getNightClubsNearby(currentPlace.getLatLng().latitude, currentPlace.getLatLng().longitude, radiusSeekBar.getProgress(), new Callback<ResultPojo>() {
+            @Override
+            public void onResponse(Call<ResultPojo> call, Response<ResultPojo> response) {
+                clubsList =PlacesServiceHelper.placePojoToPlaceList(response.body());
+                checkForFavourites(clubsList);
+                if (tabLayout.getSelectedTabPosition()==1){
+                    placesAdapter.setNewData(clubsList);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResultPojo> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void checkForFavourites(ArrayList<Entities.Place> placesList) {
+        for (Entities.Place place : placesList){
+            if (NightOutDao.isFavourite(place)){
+                place.setFavorite(true);
+            }
+            else {
+                place.setFavorite(false);
+            }
+        }
     }
 
     @Override
@@ -169,5 +204,34 @@ public class SearchFragment extends Fragment {
                 // The user canceled the operation.
             }
         }
+    }
+
+    @Override
+    public void onTabSelected(TabLayout.Tab tab) {
+        Log.e("onTabSelected","tab position: "+tab.getPosition());
+        switch (tab.getPosition()){
+            case 0:{
+                placesAdapter.setNewData(barsList);
+                break;
+            }
+            case 1:{
+                placesAdapter.setNewData(clubsList);
+                break;
+            }
+            default:{
+                Log.e("onTabSelected","tab index error");
+                return;
+            }
+        }
+    }
+
+    @Override
+    public void onTabUnselected(TabLayout.Tab tab) {
+
+    }
+
+    @Override
+    public void onTabReselected(TabLayout.Tab tab) {
+
     }
 }

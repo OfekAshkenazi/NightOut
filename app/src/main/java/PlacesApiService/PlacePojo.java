@@ -21,7 +21,7 @@ public class PlacePojo implements Serializable {
     private String[] types;
     @SerializedName("geometry")
     private Geometry location;
-    @SerializedName("photos")
+
     private PlacePhotoPojo[] photos;
 
     public PlacePhotoPojo[] getPhotos() {

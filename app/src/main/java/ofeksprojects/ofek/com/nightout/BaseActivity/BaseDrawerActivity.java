@@ -33,7 +33,6 @@ public class BaseDrawerActivity extends AppCompatActivity implements NavigationV
 
     private TextView mainTV,subTV;
     private RoundedImageView profilePicIV;
-    private View pager;
     SparseArray<Fragment> menuItemsFragments;
     private DrawerLayout drawer;
 
