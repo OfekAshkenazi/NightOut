@@ -17,6 +17,7 @@ import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Checkable;
 import android.widget.TextView;
 
 
@@ -33,8 +34,9 @@ public class BaseDrawerActivity extends AppCompatActivity implements NavigationV
 
     private TextView mainTV,subTV;
     private RoundedImageView profilePicIV;
-    SparseArray<Fragment> menuItemsFragments;
+    protected SparseArray<Fragment> menuItemsFragments=new SparseArray<>();
     private DrawerLayout drawer;
+    private NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +53,7 @@ public class BaseDrawerActivity extends AppCompatActivity implements NavigationV
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         View headerLayout = navigationView.getHeaderView(0);
         mainTV = headerLayout.findViewById(R.id.mainTV_header);
@@ -77,7 +79,17 @@ public class BaseDrawerActivity extends AppCompatActivity implements NavigationV
             Picasso.with(this).load(details.getProfilePicUrl()).into(profilePicIV);
         }
     }
+    protected void selectNavItem(final int id){
+        navigationView.setNavigationItemSelectedListener(this);
+        navigationView.post(new Runnable() {
+            @Override
+            public void run() {
+                navigationView.setCheckedItem(id);
+            }
+        });
+        onNavigationItemSelected(navigationView.getMenu().findItem(id));
 
+    }
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);

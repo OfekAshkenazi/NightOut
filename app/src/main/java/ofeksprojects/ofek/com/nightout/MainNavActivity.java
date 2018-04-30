@@ -23,13 +23,14 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import Adapters.ShowMapCallback;
 import Entities.Place;
 import Fragments.FavouritesFragment;
+import Fragments.HomeFragment;
 import Fragments.SearchFragment;
 import SQLDatabase.NightOutDao;
 import ofeksprojects.ofek.com.nightout.BaseActivity.BaseDrawerActivity;
 
-public class MainNavActivity extends BaseDrawerActivity implements OnMapReadyCallback, ShowMapCallback {
+public class MainNavActivity extends BaseDrawerActivity implements OnMapReadyCallback, ShowMapCallback, HomeFragment.SearchForPredefinedQuery{
 
-    private SparseArray<Fragment> menuItemsFragments;
+
     private MapView mapView;
     private SlidingUpPanelLayout mapPanel;
     private GoogleMap map;
@@ -57,7 +58,9 @@ public class MainNavActivity extends BaseDrawerActivity implements OnMapReadyCal
         menuItemsFragments = new SparseArray<>();
         menuItemsFragments.append(R.id.nav_search,new SearchFragment());
         menuItemsFragments.append(R.id.nav_favorites,new FavouritesFragment());
+        menuItemsFragments.append(R.id.nav_home,new HomeFragment());
         setMenuItemsFragments(menuItemsFragments);
+        selectNavItem(R.id.nav_home);
     }
     @Override
     protected void onStart() {
@@ -107,6 +110,16 @@ public class MainNavActivity extends BaseDrawerActivity implements OnMapReadyCal
         .build()));
     }
 
+    @Override
+    public void search(int type) {
+        Log.e("MainNavActivity", "mainNavActivity: search() called");
+        SearchFragment searchFragment  = new SearchFragment();
+        Bundle searchArgs = new Bundle();
+        searchArgs.putInt(SearchFragment.PREDEFINED_SEARCH_TAG,type);
+        searchFragment.setArguments(searchArgs);
+        menuItemsFragments.append(R.id.nav_search,searchFragment);
+        selectNavItem(R.id.nav_search);
+    }
     public class NestedScrollableViewHelper extends ScrollableViewHelper {
         @Override
         public int getScrollableViewScrollPosition(View scrollableView, boolean isSlidingUp) {

@@ -4,7 +4,9 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SnapHelper;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
@@ -37,6 +39,9 @@ public class ImageRecyclerView extends RecyclerView {
         Adapter adapter = new Adapter(data);
         setLayoutManager(new GridLayoutManager(getContext(),1,GridLayoutManager.HORIZONTAL,false));
         setAdapter(adapter);
+        setOnFlingListener(null);
+        SnapHelper helper = new PagerSnapHelper();
+        helper.attachToRecyclerView(this);
     }
 
     public void setPhotos(ArrayList<Bitmap> photos) {

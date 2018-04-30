@@ -24,13 +24,12 @@ public class PlacesServiceHelper {
     private static String GOOGLE_PLACES_NEARBY_BASE_URL = "https://maps.googleapis.com/maps/api/place/";
     private static String BAR_ICON_URL = "https://maps.gstatic.com/mapfiles/place_api/icons/bar-71.png";
 
-    public static void getBarsNearby(Place place,int radius,Callback<ResultPojo> callback){
+    public static void getBarsNearby(LatLng placeLatLng,int radius,Callback<ResultPojo> callback){
         Retrofit.Builder builder = new Retrofit.Builder()
                 .baseUrl(GOOGLE_PLACES_NEARBY_BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create());
         GooglePlacesService service = builder.build().create(GooglePlacesService.class);
-        String cityName = place.getAddress().toString().replaceAll("[ ,]","+");
-        retrofit2.Call<ResultPojo> call = service.searchBarsNearbyByRadius(PlacePojo.LatLngFormatter(place.getLatLng().latitude,place.getLatLng().longitude),radius,"Pubs+in+"+cityName);
+        retrofit2.Call<ResultPojo> call = service.searchBarsNearbyByRadius(PlacePojo.LatLngFormatter(placeLatLng.latitude,placeLatLng.longitude),radius);
 
         call.enqueue(callback);
     }
@@ -48,11 +47,12 @@ public class PlacesServiceHelper {
         for (PlacePojo placePojo : resultPojo.getPlaces()) {
             Log.e("icon url",placePojo.getIconUrl());
             Entities.Place place =  Entities.Place.getPlaceFromPlacePojo(placePojo);
+            // filtering all the places who aren't bars/nightclubs
             if (!place.getIconUrl().equals(BAR_ICON_URL)) {
                 Log.e("placesServiceHelper", "placePojoToPlaceList: place added. "+ "icon : "+placePojo.getIconUrl() +" place name: "+placePojo.getName() );
                 continue;
             }
-            int distance = (int) (getDistance(currentPosition,new LatLng(place.getLat(),place.getLng()))*100);
+            int distance = (int) (getDistance(currentPosition,new LatLng(place.getLat(),place.getLng()))*1000);
             if (distance>maxDistance){
                 continue;
             }
