@@ -8,10 +8,13 @@ import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SnapHelper;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
+import com.rd.PageIndicatorView;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -35,41 +38,35 @@ public class ImageRecyclerView extends RecyclerView {
     public ImageRecyclerView(Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
-    public void setPhotos(@Nullable List<String> data){
-        Adapter adapter = new Adapter(data);
+    public void setPhotos(@Nullable List<String> data, @Nullable final PageIndicatorView indicator){
+        assert data != null;
+        Log.e("ImageRecyclerView","photos list size: " + data.size());
+        Adapter adapter = new Adapter(data,indicator);
         setLayoutManager(new GridLayoutManager(getContext(),1,GridLayoutManager.HORIZONTAL,false));
         setAdapter(adapter);
-        setOnFlingListener(null);
         SnapHelper helper = new PagerSnapHelper();
         helper.attachToRecyclerView(this);
     }
-
-    public void setPhotos(ArrayList<Bitmap> photos) {
-        setAdapter(new BitmapsAdapter(photos));
-    }
-
     private class Adapter extends BaseQuickAdapter<String,BaseViewHolder>{
 
-        public Adapter(@Nullable List<String> data) {
+        private final PageIndicatorView indicator;
+
+        public Adapter(@Nullable List<String> data, @Nullable PageIndicatorView indicator) {
             super(R.layout.image_view_pager_lay,data);
+            if (indicator!=null&&data!=null){
+                indicator.setCount(data.size());
+            }
+            this.indicator = indicator;
         }
 
         @Override
         protected void convert(BaseViewHolder helper, String item) {
             ImageView imageView = helper.getView(R.id.image_ImagePagerView);
             Picasso.with(imageView.getContext()).load(item).fit().into(imageView);
-        }
-    }
-    private class BitmapsAdapter extends BaseQuickAdapter<Bitmap,BaseViewHolder>{
 
-        public BitmapsAdapter(@Nullable List<Bitmap> data) {
-            super(R.layout.image_view_pager_lay,data);
-        }
-
-        @Override
-        protected void convert(BaseViewHolder helper, Bitmap item) {
-            ImageView imageView = helper.getView(R.id.image_ImagePagerView);
-            imageView.setImageBitmap(item);
+            if (indicator != null){
+                indicator.onPageSelected(helper.getLayoutPosition());
+            }
         }
     }
 }

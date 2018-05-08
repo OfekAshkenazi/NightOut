@@ -21,12 +21,14 @@ import com.chad.library.adapter.base.BaseViewHolder;
 
 import com.github.ivbaranov.mfb.MaterialFavoriteButton;
 import com.google.android.gms.maps.model.LatLng;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import CostumeViews.ImageRecyclerView;
 import Entities.Place;
+import Fragments.SearchFragment;
 import PlacesApiService.PlacesServiceHelper;
 import SQLDatabase.NightOutDao;
 import lal.adhish.gifprogressbar.GifView;
@@ -38,17 +40,19 @@ import ofeksprojects.ofek.com.nightout.R;
 
 public class PlacesSearchAdapter extends BaseQuickAdapter<Place,PlacesSearchAdapter.PlaceViewHolder> {
     private final Handler requestHandler;
+    private final SearchFragment.OpenGalleryDialog galleryDialogCallback;
     private HandlerThread requestThread;
     private ShowMapCallback mapCallback;
     private com.google.android.gms.location.places.Place currentPlace;
     private static String PLACE_PHOTOS_BASE_URL = "https://maps.googleapis.com/maps/api/place/photo?";
-    public PlacesSearchAdapter(@Nullable List<Place> data, Context context,ShowMapCallback mapCallback) {
+    public PlacesSearchAdapter(@Nullable List<Place> data, Context context, ShowMapCallback mapCallback, SearchFragment.OpenGalleryDialog galleryDialogCallback) {
         super(R.layout.place_item_base_layout,data);
         requestThread = new HandlerThread("photo_request_handler");
         requestThread.start();
         requestHandler = new Handler(requestThread.getLooper());
         mContext = context;
         this.mapCallback = mapCallback;
+        this.galleryDialogCallback = galleryDialogCallback;
     }
 
     public void setCurrentPlace(com.google.android.gms.location.places.Place currentPlace) {
@@ -73,9 +77,13 @@ public class PlacesSearchAdapter extends BaseQuickAdapter<Place,PlacesSearchAdap
         else {
             helper.favoriteButton.setFavorite(false,false);
         }
-        helper.imagesRV.setPhotos(getThumbsAsLinks(item));
+        ArrayList<String> photos = getThumbsAsLinks(item);
+        if (photos.size()>=1){
+            Picasso.with(mContext).load(photos.get(0)).fit().into(helper.thumbIV);
+        }
+//        helper.imagesRV.setPhotos(getThumbsAsLinks(item));
         // activate after adding zoom animation.
-        loadThumbs(helper,item);
+//        loadThumbs(helper,item);
         if (currentPlace!=null){
             helper.distanceTV.setText(""+(int) PlacesServiceHelper.getDistance(currentPlace.getLatLng(),new LatLng(item.getLat(),item.getLng())));
         }
@@ -84,26 +92,26 @@ public class PlacesSearchAdapter extends BaseQuickAdapter<Place,PlacesSearchAdap
         }
     }
 
-    private void loadThumbs(final PlaceViewHolder helper, final Place item) {
-        if (item.getPhotos().length>=1)
-            requestHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    item.setPhotos(PlacesServiceHelper.getPlacePhotos(item));
-                    // if the current cell is no longer holds this item skip the photos display.
-                    if (helper.getLayoutPosition()==getData().indexOf(item)) {
-                        helper.imagesRV.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                ArrayList<String> photos = new ArrayList<String>(getThumbsAsLinks(item));
-                                photos.addAll(getThumbsAsLinks(item));
-                                helper.imagesRV.setPhotos(photos);
-                            }
-                        });
-                    }
-                }
-            });
-    }
+//    private void loadThumbs(final PlaceViewHolder helper, final Place item) {
+//        if (item.getPhotos().length>=1)
+//            requestHandler.post(new Runnable() {
+//                @Override
+//                public void run() {
+//                    item.setPhotos(PlacesServiceHelper.getPlacePhotos(item));
+//                    // if the current cell is no longer holds this item skip the photos display.
+//                    if (helper.getLayoutPosition()==getData().indexOf(item)) {
+//                        helper.imagesRV.post(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                ArrayList<String> photos = new ArrayList<String>(getThumbsAsLinks(item));
+//                                photos.addAll(getThumbsAsLinks(item));
+//                                helper.imagesRV.setPhotos(photos);
+//                            }
+//                        });
+//                    }
+//                }
+//            });
+//    }
     private ArrayList<String> getThumbsAsLinks(Place item) {
         ArrayList<String> photosUrl = new ArrayList<>();
         Log.e("place name: "+item.getName(),"photos count = "+item.getPhotos().length);
@@ -126,15 +134,22 @@ public class PlacesSearchAdapter extends BaseQuickAdapter<Place,PlacesSearchAdap
     public class PlaceViewHolder extends BaseViewHolder {
         TextView nameTV,addressTV,distanceTV;
         MaterialFavoriteButton favoriteButton;
-        ImageRecyclerView imagesRV;
-        ImageView wazeBtn,mapBtn;
+//        ImageRecyclerView imagesRV;
+        ImageView wazeBtn,mapBtn,thumbIV;
         public PlaceViewHolder(final View view) {
             super(view);
             distanceTV = view.findViewById(R.id.distanceTV_placeAdapter);
             nameTV = view.findViewById(R.id.nameTV_placeAdapter);
             addressTV = view.findViewById(R.id.addressTV_placeAdapter);
             favoriteButton = view.findViewById(R.id.favoriteButton_placeAdapter);
-            imagesRV = view.findViewById(R.id.imagePager_placeAdapter);
+//            imagesRV = view.findViewById(R.id.imagePager_placeAdapter);
+            thumbIV = view.findViewById(R.id.thumbIV_placeAdapter);
+            thumbIV.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    galleryDialogCallback.openGalleryDialog(getData().get(getLayoutPosition()));
+                }
+            });
             wazeBtn = view.findViewById(R.id.wazeBtn_placesAdapter);
             mapBtn = view.findViewById(R.id.mapButton_placeAdapter);
             mapBtn.setOnClickListener(new View.OnClickListener() {
@@ -175,31 +190,31 @@ public class PlacesSearchAdapter extends BaseQuickAdapter<Place,PlacesSearchAdap
                     }
                 }
             });
-            setNestingTouch();
+//            setNestingTouch();
         }
-        private void setNestingTouch(){
-            imagesRV.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
-                @Override
-                public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-                    int action = e.getAction();
-                    switch (action) {
-                        case MotionEvent.ACTION_MOVE:
-                            rv.getParent().requestDisallowInterceptTouchEvent(true);
-                            break;
-                    }
-                    return false;
-                }
-
-                @Override
-                public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-
-                }
-
-                @Override
-                public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-
-                }
-            });
-        }
+//        private void setNestingTouch(){
+//            imagesRV.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+//                @Override
+//                public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+//                    int action = e.getAction();
+//                    switch (action) {
+//                        case MotionEvent.ACTION_MOVE:
+//                            rv.getParent().requestDisallowInterceptTouchEvent(true);
+//                            break;
+//                    }
+//                    return false;
+//                }
+//
+//                @Override
+//                public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+//
+//                }
+//
+//                @Override
+//                public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+//
+//                }
+//            });
+//        }
     }
 }

@@ -43,18 +43,31 @@
             android:textSize="24sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imagePager_placeAdapter" />
+            app:layout_constraintTop_toBottomOf="@+id/thumbIV_placeAdapter" />
 
-        <CostumeViews.ImageRecyclerView
-            android:id="@+id/imagePager_placeAdapter"
+        <!--<CostumeViews.ImageRecyclerView-->
+            <!--android:id="@+id/imagePager_placeAdapter"-->
+            <!--android:layout_width="200dp"-->
+            <!--android:layout_height="200dp"-->
+            <!--android:layout_marginEnd="8dp"-->
+            <!--android:layout_marginStart="8dp"-->
+            <!--android:layout_marginTop="12dp"-->
+            <!--app:layout_constraintEnd_toEndOf="parent"-->
+            <!--app:layout_constraintStart_toStartOf="parent"-->
+            <!--app:layout_constraintTop_toBottomOf="@+id/favoriteButton_placeAdapter" />-->
+        <ImageView
+            android:id="@+id/thumbIV_placeAdapter"
             android:layout_width="200dp"
             android:layout_height="200dp"
+            android:layout_marginBottom="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="12dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/favoriteButton_placeAdapter" />
+            app:layout_constraintTop_toBottomOf="@+id/favoriteButton_placeAdapter"
+            app:layout_constraintVertical_bias="0.028" />
 
         <com.github.ivbaranov.mfb.MaterialFavoriteButton
             android:id="@+id/favoriteButton_placeAdapter"

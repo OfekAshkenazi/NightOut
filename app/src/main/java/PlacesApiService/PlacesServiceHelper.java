@@ -23,7 +23,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class PlacesServiceHelper {
     private static String GOOGLE_PLACES_NEARBY_BASE_URL = "https://maps.googleapis.com/maps/api/place/";
     private static String BAR_ICON_URL = "https://maps.gstatic.com/mapfiles/place_api/icons/bar-71.png";
-
+    private static String PLACE_PHOTOS_BASE_URL = "https://maps.googleapis.com/maps/api/place/photo?";
     public static void getBarsNearby(LatLng placeLatLng,int radius,Callback<ResultPojo> callback){
         Retrofit.Builder builder = new Retrofit.Builder()
                 .baseUrl(GOOGLE_PLACES_NEARBY_BASE_URL)
@@ -61,12 +61,12 @@ public class PlacesServiceHelper {
         return placesList;
     }
 
-    public static Entities.Place.PlacePhoto[] getPlacePhotos(final Entities.Place place) {
+    public static Entities.Place.PlacePhoto[] getPlacePhotos(final String placeId) {
         Retrofit.Builder builder = new Retrofit.Builder()
                 .baseUrl(GOOGLE_PLACES_NEARBY_BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create());
         GooglePlacesService service = builder.build().create(GooglePlacesService.class);
-        Call<PlaceDetailsResultPojo> placeDetailsResultPojoCall = service.getPlaceDetails(place.getPlaceId());
+        Call<PlaceDetailsResultPojo> placeDetailsResultPojoCall = service.getPlaceDetails(placeId);
         try {
             Log.e("getPlacePhotos"," url : "+placeDetailsResultPojoCall.request().url().toString());
             Entities.Place.PlacePhoto[] photos = placeDetailsResultPojoCall.execute().body().result.getPlacePhotos();
@@ -75,6 +75,18 @@ public class PlacesServiceHelper {
             e.printStackTrace();
         }
         return new Entities.Place.PlacePhoto[0];
+    }
+    public static String getUrlFromReference(String ref,int width,int height){
+        StringBuilder builder = new StringBuilder(PLACE_PHOTOS_BASE_URL);
+        builder.append("maxwidth=" + width );
+        builder.append("&");
+        builder.append("maxheight=" + height);
+        builder.append("&");
+        builder.append("photoreference=" + ref);
+        builder.append("&");
+        builder.append("key=AIzaSyAT122JQodpYI9XlgdZdxJQ16CcVUFvr-E");
+        Log.e("photo url","url = "+builder.toString());
+        return builder.toString();
     }
     // base on the Haversine formula. copied from - jasonwinn/haversine. Link - https://github.com/jasonwinn/haversine/blob/master/Haversine.java
     private static final int EARTH_RADIUS = 6371; // Approx Earth radius in KM

@@ -73,7 +73,7 @@ public class FavouritesAdapter extends BaseQuickAdapter<Place,FavouritesAdapter.
             Log.e("photo url","url = "+builder.toString());
             photosUrl.add(builder.toString());
         }
-        helper.thumbIV.setPhotos(photosUrl);
+        helper.thumbIV.setPhotos(photosUrl,null);
     }
 
     public class ViewHolder extends BaseViewHolder {

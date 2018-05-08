@@ -104,7 +104,7 @@ public class SearchFragment extends Fragment implements TabLayout.OnTabSelectedL
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setViews();
-        placesAdapter = new PlacesSearchAdapter(new ArrayList<Entities.Place>(), getContext(), (ShowMapCallback) getActivity());
+        placesAdapter = new PlacesSearchAdapter(new ArrayList<Entities.Place>(), getContext(), (ShowMapCallback) getActivity(), (OpenGalleryDialog) getActivity());
         tabLayout.addOnTabSelectedListener(this);
         placesRV.setLayoutManager(new GridLayoutManager(placesRV.getContext(), 1, GridLayoutManager.HORIZONTAL, false));
         placesRV.setAdapter(placesAdapter);
@@ -148,7 +148,7 @@ public class SearchFragment extends Fragment implements TabLayout.OnTabSelectedL
 
             }
         });
-        checkForPredefinedSearch();
+//        checkForPredefinedSearch();
     }
 
     private void checkForPredefinedSearch() {
@@ -338,5 +338,10 @@ public class SearchFragment extends Fragment implements TabLayout.OnTabSelectedL
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.e("searchFragment", "Connection failed: ConnectionResult.getErrorCode() = "
                 + connectionResult.getErrorCode());
+    }
+
+    /* ----------------------- Callbacks interface --------------------------*/
+    public interface OpenGalleryDialog{
+        void openGalleryDialog(Entities.Place place);
     }
 }

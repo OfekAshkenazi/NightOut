@@ -24,7 +24,7 @@ import ofeksprojects.ofek.com.nightout.R;
 
 public class ImageViewPager extends ViewPager {
 
-
+    private ImagePagerAdapter adapter;
     public ImageViewPager(@NonNull Context context) {
         super(context);
     }
@@ -37,7 +37,11 @@ public class ImageViewPager extends ViewPager {
         setAdapter(new ImagePagerAdapter(urls,getContext()));
     }
 
-
+    public void adapterNotifyDataSetChanged(){
+        if (adapter!=null){
+            adapter.notifyDataSetChanged();
+        }
+    }
 
     private static class ImagePagerAdapter extends PagerAdapter{
         private List<String> urls;

@@ -21,6 +21,7 @@ import com.sothree.slidinguppanel.ScrollableViewHelper;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import Adapters.ShowMapCallback;
+import CostumeViews.ImageGalleryDialogFragment;
 import Entities.Place;
 import Fragments.FavouritesFragment;
 import Fragments.HomeFragment;
@@ -28,7 +29,7 @@ import Fragments.SearchFragment;
 import SQLDatabase.NightOutDao;
 import ofeksprojects.ofek.com.nightout.BaseActivity.BaseDrawerActivity;
 
-public class MainNavActivity extends BaseDrawerActivity implements OnMapReadyCallback, ShowMapCallback, HomeFragment.SearchForPredefinedQuery{
+public class MainNavActivity extends BaseDrawerActivity implements OnMapReadyCallback, ShowMapCallback, HomeFragment.SearchForPredefinedQuery, SearchFragment.OpenGalleryDialog{
 
 
     private MapView mapView;
@@ -120,6 +121,13 @@ public class MainNavActivity extends BaseDrawerActivity implements OnMapReadyCal
         menuItemsFragments.append(R.id.nav_search,searchFragment);
         selectNavItem(R.id.nav_search);
     }
+
+    @Override
+    public void openGalleryDialog(Place place) {
+        ImageGalleryDialogFragment fragment = ImageGalleryDialogFragment.getInstance(place);
+        fragment.show(getSupportFragmentManager(),"Photos Dialog");
+    }
+
     public class NestedScrollableViewHelper extends ScrollableViewHelper {
         @Override
         public int getScrollableViewScrollPosition(View scrollableView, boolean isSlidingUp) {

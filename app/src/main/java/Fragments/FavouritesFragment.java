@@ -61,7 +61,7 @@ public class FavouritesFragment extends Fragment {
                 });
                 favPlaces = NightOutDao.getAllFavouritePlaces();
                 for (Place place: favPlaces){
-                    place.setPhotos(PlacesServiceHelper.getPlacePhotos(place));
+                    place.setPhotos(PlacesServiceHelper.getPlacePhotos(place.getPlaceId()));
                 }
                 onFavPlacesLoaded();
             }
