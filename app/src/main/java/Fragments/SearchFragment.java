@@ -68,7 +68,6 @@ public class SearchFragment extends Fragment implements TabLayout.OnTabSelectedL
 
     private static final int SEARCH_AUTO_COMPLETE_REQUEST = 154;
     public static final String PREDEFINED_SEARCH_TAG = "predefinedSearch";
-    private SupportPlaceAutocompleteFragment searchFragment;
     private BubbleSeekBar radiusSeekBar;
     private TextView currentPlaceTV;
     private LatLng currentPlaceLatLng;
@@ -148,7 +147,7 @@ public class SearchFragment extends Fragment implements TabLayout.OnTabSelectedL
 
             }
         });
-//        checkForPredefinedSearch();
+        checkForPredefinedSearch();
     }
 
     private void checkForPredefinedSearch() {
@@ -170,6 +169,9 @@ public class SearchFragment extends Fragment implements TabLayout.OnTabSelectedL
                     // to handle the case where the user grants the permission. See the documentation
                     // for ActivityCompat#requestPermissions for more details.
                     return;
+                }
+                else {
+
                 }
                 LocationServices.getFusedLocationProviderClient(getContext()).getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
                     @Override

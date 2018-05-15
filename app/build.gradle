@@ -57,5 +57,8 @@ dependencies {
     implementation 'org.litepal.android:core:1.6.1'
     implementation 'com.sothree.slidinguppanel:library:3.4.0'
     implementation 'com.github.adhishlal:gifloader:1.1'
+    implementation ('com.alibaba.android:ultraviewpager:1.0.7.7@aar') {
+        transitive = true
+    }
 }
 apply plugin: 'com.google.gms.google-services'

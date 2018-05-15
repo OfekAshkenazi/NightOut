@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.MotionEvent;
 import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -50,7 +51,6 @@ public class MainNavActivity extends BaseDrawerActivity implements OnMapReadyCal
         mapPanel = findViewById(R.id.mapPanel_navActivity);
         mapPanel.setOverlayed(true);
         mapPanel.setScrollableView(mapView);
-        mapPanel.setScrollableViewHelper(new NestedScrollableViewHelper());
     }
     private void setMap() {
         mapView = (MapView) findViewById(R.id.map_navActivity);
@@ -126,23 +126,5 @@ public class MainNavActivity extends BaseDrawerActivity implements OnMapReadyCal
     public void openGalleryDialog(Place place) {
         ImageGalleryDialogFragment fragment = ImageGalleryDialogFragment.getInstance(place);
         fragment.show(getSupportFragmentManager(),"Photos Dialog");
-    }
-
-    public class NestedScrollableViewHelper extends ScrollableViewHelper {
-        @Override
-        public int getScrollableViewScrollPosition(View scrollableView, boolean isSlidingUp) {
-            if (scrollableView instanceof NestedScrollView) {
-                if(isSlidingUp){
-                    return scrollableView.getScrollY();
-                } else {
-                    NestedScrollView nsv = ((NestedScrollView) scrollableView);
-                    View child = nsv.getChildAt(0);
-                    return (child.getBottom() - (nsv.getHeight() + nsv.getScrollY()));
-                }
-            } else {
-                return 0;
-            }
-        }
-
     }
 }
