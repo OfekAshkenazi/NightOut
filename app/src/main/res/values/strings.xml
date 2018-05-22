@@ -23,4 +23,11 @@
     <string name="km_tv_place_adapter_item">Km</string>
     <string name="error_text">error</string>
     <string name="loaction_track_error">There was a problem to track your location, please enable the GPS and try again</string>
+    <string name="permission_not_granted_warning">without the location permission some of the application function won\'t work as expected!</string>
+    <string name="activate_gps_dialog_message">It seems like your GPS location is not available,would you like to activate it now?</string>
+    <string name="activate_gps_dialog_btn_positive">Yes</string>
+    <string name="activate_gps_dialog_btn_negative">No</string>
+    <string name="activate_gps_dialog_negative_message">without the gps location your current location cannot be located.</string>
+    <string name="no_result_found_message">Sorry, no results found. try to search in another location or extend the radius.</string>
+    <string name="no_photos_found">No photos found</string>
 </resources>

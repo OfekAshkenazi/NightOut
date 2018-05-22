@@ -57,10 +57,11 @@
                 style="@style/AppTheme"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
                 android:layout_below="@id/searchCard_searchFrag"
+                android:layout_alignParentBottom="true"
                 app:bsb_max="15000"
                 app:bsb_min="500"
+                app:bsb_progress="15000"
                 app:bsb_show_section_text="true" />
         </RelativeLayout>
     </android.support.v7.widget.Toolbar>

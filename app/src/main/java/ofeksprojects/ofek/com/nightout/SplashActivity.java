@@ -28,41 +28,7 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-        authenticateUser();
-    }
-
-    private void authenticateUser() {
-        FirebaseApp.initializeApp(getApplicationContext());
-        if (FirebaseAuth.getInstance().getCurrentUser()==null){
-            startAuthenticationActivity();
-        }
-    }
-
-    private void startAuthenticationActivity() {
-        List<AuthUI.IdpConfig> providers = Arrays.asList(new AuthUI.IdpConfig.FacebookBuilder().build(),
-                new AuthUI.IdpConfig.GoogleBuilder().build());
-        Intent intent=AuthUI.getInstance()
-                .createSignInIntentBuilder()
-                .setAvailableProviders(providers)
-                .build();
-        startActivityForResult(intent,AUTHENTICATION_REQUEST_CODE);
-    }
-
-    @SuppressLint("RestrictedApi")
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == AUTHENTICATION_REQUEST_CODE) {
-            IdpResponse response = IdpResponse.fromResultIntent(data);
-
-            if (resultCode == RESULT_OK) {
-                Intent intent = new Intent(this,MainNavActivity.class);
-            } else {
-                // Sign in failed, check response for error code
-                assert response != null;
-                Log.e("authentication failed", "error code : "+response.getErrorCode());
-            }
-        }
+        Intent intent = new Intent(this,MainNavActivity.class);
+        startActivity(intent);
     }
 }

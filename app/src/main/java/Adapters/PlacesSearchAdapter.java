@@ -2,6 +2,8 @@ package Adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.Nullable;
@@ -43,7 +45,7 @@ public class PlacesSearchAdapter extends BaseQuickAdapter<Place,PlacesSearchAdap
     private final SearchFragment.OpenGalleryDialog galleryDialogCallback;
     private HandlerThread requestThread;
     private ShowMapCallback mapCallback;
-    private com.google.android.gms.location.places.Place currentPlace;
+    private LatLng currentLatLng;
     private static String PLACE_PHOTOS_BASE_URL = "https://maps.googleapis.com/maps/api/place/photo?";
     public PlacesSearchAdapter(@Nullable List<Place> data, Context context, ShowMapCallback mapCallback, SearchFragment.OpenGalleryDialog galleryDialogCallback) {
         super(R.layout.place_item_base_layout,data);
@@ -55,8 +57,8 @@ public class PlacesSearchAdapter extends BaseQuickAdapter<Place,PlacesSearchAdap
         this.galleryDialogCallback = galleryDialogCallback;
     }
 
-    public void setCurrentPlace(com.google.android.gms.location.places.Place currentPlace) {
-        this.currentPlace = currentPlace;
+    public void setCurrentLatLng(LatLng currentLatLng) {
+        this.currentLatLng = currentLatLng;
     }
 
     public void activateLoadingView() {
@@ -66,6 +68,20 @@ public class PlacesSearchAdapter extends BaseQuickAdapter<Place,PlacesSearchAdap
         loadingImageView.setImageResource(R.drawable.filled_glass_progress_bar_gif);
         setNewData(new ArrayList<Place>());
     }
+    public void activateNoResultsView(){
+        View loadingView = LayoutInflater.from(mContext).inflate(R.layout.no_search_result_layout,getRecyclerView(),false);
+        setEmptyView(loadingView);
+        setNewData(new ArrayList<Place>());
+    }
+
+    @Override
+    public void setNewData(@Nullable List<Place> data) {
+        super.setNewData(data);
+        if (data!=null&&!data.isEmpty()&&getRecyclerView()!=null){
+            getRecyclerView().scrollToPosition(0);
+        }
+    }
+
     @SuppressLint("SetTextI18n")
     @Override
     protected void convert(PlaceViewHolder helper, Place item) {
@@ -81,11 +97,14 @@ public class PlacesSearchAdapter extends BaseQuickAdapter<Place,PlacesSearchAdap
         if (photos.size()>=1){
             Picasso.with(mContext).load(photos.get(0)).fit().into(helper.thumbIV);
         }
+        else {
+            helper.thumbIV.setImageResource(R.drawable.no_images_found);
+        }
 //        helper.imagesRV.setPhotos(getThumbsAsLinks(item));
         // activate after adding zoom animation.
 //        loadThumbs(helper,item);
-        if (currentPlace!=null){
-            helper.distanceTV.setText(""+(int) PlacesServiceHelper.getDistance(currentPlace.getLatLng(),new LatLng(item.getLat(),item.getLng())));
+        if (currentLatLng!=null){
+            helper.distanceTV.setText(""+(int) PlacesServiceHelper.getDistance(currentLatLng,new LatLng(item.getLat(),item.getLng())));
         }
         else {
             helper.distanceTV.setText(R.string.error_text);
@@ -162,6 +181,16 @@ public class PlacesSearchAdapter extends BaseQuickAdapter<Place,PlacesSearchAdap
                 @Override
                 public void onClick(View view) {
                     // open with waze
+                    Place place = getData().get(getLayoutPosition());
+                    StringBuilder wazeUriBuilder = new StringBuilder();
+                    wazeUriBuilder.append("https://waze.com/ul");
+                    wazeUriBuilder.append("?ll=");
+                    wazeUriBuilder.append(place.getLat());
+                    wazeUriBuilder.append(",");
+                    wazeUriBuilder.append(place.getLng());
+                    wazeUriBuilder.append("&navigate=yes");
+                    Intent intent = new Intent(Intent.ACTION_VIEW,Uri.parse(wazeUriBuilder.toString()));
+                    view.getContext().startActivity(intent);
                 }
             });
             favoriteButton.setOnFavoriteChangeListener(new MaterialFavoriteButton.OnFavoriteChangeListener() {

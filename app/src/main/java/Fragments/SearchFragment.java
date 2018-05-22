@@ -2,8 +2,10 @@ package Fragments;
 
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.PermissionInfo;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -25,6 +27,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.PermissionRequest;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,6 +36,7 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
@@ -40,10 +44,12 @@ import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.location.places.ui.SupportPlaceAutocompleteFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.xw.repo.BubbleSeekBar;
 
 import java.io.IOException;
+import java.security.Permission;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -60,24 +66,28 @@ import retrofit2.Response;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class SearchFragment extends Fragment implements TabLayout.OnTabSelectedListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class SearchFragment extends Fragment implements TabLayout.OnTabSelectedListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, OnSuccessListener<Location> {
 
+    public static final String LONGITUDE_TAG = "long";
     private static final int SEARCH_AUTO_COMPLETE_REQUEST = 154;
     public static final String PREDEFINED_SEARCH_TAG = "predefinedSearch";
+    public static String LATITUDE_TAG = "lat";
     private BubbleSeekBar radiusSeekBar;
     private TextView currentPlaceTV;
     private LatLng currentPlaceLatLng;
     private RecyclerView placesRV;
     private PlacesSearchAdapter placesAdapter;
-    private ArrayList<Entities.Place> barsList;
-    private ArrayList<Entities.Place> clubsList;
+    private ArrayList<Entities.Place> barsList = new ArrayList<>();
+    private ArrayList<Entities.Place> clubsList = new ArrayList<>();
     private CardView searchCard;
     private TabLayout tabLayout;
     private GoogleApiClient googleApiClient;
+    private FusedLocationProviderClient locationServicesClient;
 
     public SearchFragment() {
         // Required empty public constructor
@@ -86,10 +96,6 @@ public class SearchFragment extends Fragment implements TabLayout.OnTabSelectedL
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        googleApiClient = new GoogleApiClient.Builder(getContext())
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API).build();
     }
 
     @Override
@@ -139,7 +145,7 @@ public class SearchFragment extends Fragment implements TabLayout.OnTabSelectedL
 
             @Override
             public void getProgressOnActionUp(BubbleSeekBar bubbleSeekBar, int progress, float progressFloat) {
-
+                requestPlaces();
             }
 
             @Override
@@ -150,53 +156,35 @@ public class SearchFragment extends Fragment implements TabLayout.OnTabSelectedL
         checkForPredefinedSearch();
     }
 
+    @SuppressLint("MissingPermission")
     private void checkForPredefinedSearch() {
-        if (!checkPlayServices()) {
-            Toast.makeText(getContext(), "this devicec not support google play services", Toast.LENGTH_SHORT).show();
-        }
         if (getArguments() == null) {
             return;
         }
+        currentPlaceLatLng = new LatLng(getArguments().getDouble(LATITUDE_TAG),getArguments().getDouble(LONGITUDE_TAG));
+        placesAdapter.setCurrentLatLng(currentPlaceLatLng);
+        try {
+            currentPlaceTV.setText(getAddressFromLatLng(currentPlaceLatLng.latitude,currentPlaceLatLng.longitude));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        requestPlaces();
         switch (getArguments().getInt(PREDEFINED_SEARCH_TAG)) {
             //search for pubs nearby
             case 1: {
-                if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return;
-                }
-                else {
-
-                }
-                LocationServices.getFusedLocationProviderClient(getContext()).getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Location> task) {
-                        Location location = task.getResult();
-                        try {
-                            String currentAddress = getAddressFromLatLng(location.getLatitude(),location.getLongitude());
-                            currentPlaceTV.setText(currentAddress);
-
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            Toast.makeText(getContext(), R.string.loaction_track_error, Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+                tabLayout.getTabAt(0).select();
+                break;
             }
             // search for clubs nearby
             case 2: {
-
-
+                tabLayout.getTabAt(1).select();
+                break;
             }
             default: {
                 return;
             }
         }
+        placesAdapter.activateLoadingView();
     }
     // get the current user address. copied from - https://stackoverflow.com/questions/9409195/how-to-get-complete-address-from-latitude-and-longitude
     private String getAddressFromLatLng(double latitude, double longitude) throws IOException {
@@ -239,7 +227,8 @@ public class SearchFragment extends Fragment implements TabLayout.OnTabSelectedL
                 barsList =PlacesServiceHelper.placePojoToPlaceList(response.body(),radiusSeekBar.getProgress(), currentPlaceLatLng);
                 checkForFavourites(barsList);
                 if (tabLayout.getSelectedTabPosition()==0){
-                    placesAdapter.setNewData(barsList);
+                    Log.e("searchFragment","onResponse: barsList length: "+barsList.size());
+                    onTabReselected(tabLayout.getTabAt(tabLayout.getSelectedTabPosition()));
                 }
             }
 
@@ -254,7 +243,8 @@ public class SearchFragment extends Fragment implements TabLayout.OnTabSelectedL
                 clubsList =PlacesServiceHelper.placePojoToPlaceList(response.body(),radiusSeekBar.getProgress(), currentPlaceLatLng);
                 checkForFavourites(clubsList);
                 if (tabLayout.getSelectedTabPosition()==1){
-                    placesAdapter.setNewData(clubsList);
+                    Log.e("searchFragment","onResponse: clubsList length: "+clubsList.size());
+                    onTabReselected(tabLayout.getTabAt(tabLayout.getSelectedTabPosition()));
                 }
             }
 
@@ -285,7 +275,7 @@ public class SearchFragment extends Fragment implements TabLayout.OnTabSelectedL
                 Place currentPlace = PlaceAutocomplete.getPlace(getContext(),data);
                 currentPlaceLatLng = currentPlace.getLatLng();
                 currentPlaceTV.setText(currentPlace.getName());
-                placesAdapter.setCurrentPlace(currentPlace);
+                placesAdapter.setCurrentLatLng(currentPlaceLatLng);
                 requestPlaces();
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(getContext(), data);
@@ -299,14 +289,27 @@ public class SearchFragment extends Fragment implements TabLayout.OnTabSelectedL
 
     @Override
     public void onTabSelected(TabLayout.Tab tab) {
+        if (clubsList==null||barsList==null){
+            return;
+        }
         Log.e("onTabSelected","tab position: "+tab.getPosition());
         switch (tab.getPosition()){
             case 0:{
-                placesAdapter.setNewData(barsList);
+                if (barsList.isEmpty()){
+                    placesAdapter.activateNoResultsView();
+                }
+                else {
+                    placesAdapter.setNewData(barsList);
+                }
                 break;
             }
             case 1:{
-                placesAdapter.setNewData(clubsList);
+                if (clubsList.isEmpty()){
+                    placesAdapter.activateNoResultsView();
+                }
+                else {
+                    placesAdapter.setNewData(clubsList);
+                }
                 break;
             }
             default:{
@@ -323,7 +326,7 @@ public class SearchFragment extends Fragment implements TabLayout.OnTabSelectedL
 
     @Override
     public void onTabReselected(TabLayout.Tab tab) {
-
+        onTabSelected(tab);
     }
 
     @Override
@@ -340,6 +343,11 @@ public class SearchFragment extends Fragment implements TabLayout.OnTabSelectedL
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.e("searchFragment", "Connection failed: ConnectionResult.getErrorCode() = "
                 + connectionResult.getErrorCode());
+    }
+
+    @Override
+    public void onSuccess(Location location) {
+        Log.e("searchFragment","onSuccess called: current location - lat:"+location.getLatitude() + "long:" +location.getLongitude());
     }
 
     /* ----------------------- Callbacks interface --------------------------*/

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="ofeksprojects.ofek.com.nightout">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -13,16 +14,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:largeHeap="true">
-        <activity android:name=".MainNavActivity">
+        android:largeHeap="true"
+        tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".MainNavActivity"
+            android:screenOrientation="portrait">
+
+        </activity>
+        <activity android:name=".SplashActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity android:name=".SplashActivity">
-
         </activity>
         <activity android:name=".AuthActivity" />
         <!--
@@ -31,7 +35,7 @@
              Note that the API key is linked to the encryption key used to sign the APK.
              You need a different API key for each encryption key, including the release key that is used to
              sign the APK for publishing.
-             You can define the keys for the debug and release targets in src/debug/ and src/release/. 
+             You can define the keys for the debug and release targets in src/debug/ and src/release/.
         -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"

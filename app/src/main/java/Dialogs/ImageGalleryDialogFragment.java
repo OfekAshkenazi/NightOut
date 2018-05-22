@@ -1,6 +1,7 @@
-package CostumeViews;
+package Dialogs;
 
 import android.app.Dialog;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
@@ -8,14 +9,21 @@ import android.os.HandlerThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.view.PagerAdapter;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
-import com.rd.PageIndicatorView;
+import com.squareup.picasso.Picasso;
+import com.tmall.ultraviewpager.UltraViewPager;
+import com.tmall.ultraviewpager.UltraViewPagerAdapter;
 
 import java.util.ArrayList;
 
@@ -30,7 +38,6 @@ import ofeksprojects.ofek.com.nightout.R;
 public class ImageGalleryDialogFragment extends DialogFragment {
     private static final String PLACE_ID_TAG = "placeID";
     private static String PLACE_THUMB_REFERENCE_TAG = "place_thumb";
-    private ImageRecyclerView imagesRV = null;
     private Handler requestHandler;
     private HandlerThread handlerThread;
     private String placeId;
@@ -38,7 +45,7 @@ public class ImageGalleryDialogFragment extends DialogFragment {
     private String thumbRef = "";
     private boolean isLoaded = false;
     private ProgressBar progressBar;
-    private PageIndicatorView pagerIndicators;
+    private UltraViewPager imagePager;
 
     public static ImageGalleryDialogFragment getInstance(Place place){
         ImageGalleryDialogFragment galleryDialogFragment = new ImageGalleryDialogFragment();
@@ -72,6 +79,11 @@ public class ImageGalleryDialogFragment extends DialogFragment {
             @Override
             public void run() {
                 Place.PlacePhoto[] photosArr = PlacesServiceHelper.getPlacePhotos(placeId);
+                if (photosArr==null){
+                    dismiss();
+                    Toast.makeText(getContext(), R.string.no_photos_found, Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 for (Place.PlacePhoto photo: photosArr){
                     String url = PlacesServiceHelper.getUrlFromReference(photo.getReference(),1600,1600);
                     Log.e("ImageDialog","requestPhotos: "+url);
@@ -80,11 +92,11 @@ public class ImageGalleryDialogFragment extends DialogFragment {
                 if (!photosUrls.contains(PlacesServiceHelper.getUrlFromReference(thumbRef,1600,1600))){
                     photosUrls.add(PlacesServiceHelper.getUrlFromReference(thumbRef,1600,1600));
                 }
-                if (imagesRV !=null&&!isLoaded){
-                    imagesRV.post(new Runnable() {
+                if (imagePager !=null&&!isLoaded){
+                    imagePager.post(new Runnable() {
                         @Override
                         public void run() {
-                            imagesRV.setPhotos(photosUrls,pagerIndicators);
+                            imagePager.setAdapter(new ImagePagerAdapter(photosUrls));
                             progressBar.setVisibility(View.GONE);
                         }
                     });
@@ -103,15 +115,27 @@ public class ImageGalleryDialogFragment extends DialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        imagesRV = view.findViewById(R.id.imagePager_gallery_dialog);
         progressBar = view.findViewById(R.id.progressBar_imageDialog);
-        pagerIndicators = view.findViewById(R.id.indicators_ImageDialog);
-
+        imagePager = view.findViewById(R.id.photosPager_imageDialog);
+        setPager();
         if (photosUrls.size() >= 1 && !isLoaded) {
             progressBar.setVisibility(View.GONE);
-            imagesRV.setPhotos(photosUrls,pagerIndicators);
+            imagePager.setAdapter(new ImagePagerAdapter(photosUrls));
             isLoaded = true;
         }
+    }
+
+    private void setPager() {
+        imagePager.initIndicator();
+        imagePager.getIndicator()
+                .setOrientation(UltraViewPager.Orientation.HORIZONTAL)
+                .setFocusColor(R.color.purple)
+                .setNormalColor(Color.WHITE)
+                .setRadius((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics()));
+//set the alignment
+        imagePager.getIndicator().setGravity(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM);
+//construct built-in indicator, and add it to  UltraViewPager
+        imagePager.getIndicator().build();
     }
 
     @NonNull
@@ -132,5 +156,37 @@ public class ImageGalleryDialogFragment extends DialogFragment {
         super.onDestroy();
         handlerThread.quitSafely();
     }
+    protected class ImagePagerAdapter extends PagerAdapter {
+        private ArrayList<String> urlsArr;
 
+        public ImagePagerAdapter(ArrayList<String> urlsArr) {
+            this.urlsArr = new ArrayList<>();
+            this.urlsArr.addAll(urlsArr);
+        }
+
+        @Override
+        public int getCount() {
+            return urlsArr.size();
+        }
+
+        @Override
+        public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
+            return view==object;
+        }
+
+        @NonNull
+        @Override
+        public Object instantiateItem(@NonNull ViewGroup container, int position) {
+            ImageView photosIV = new ImageView(container.getContext());
+            photosIV.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT));
+            Picasso.with(getContext()).load(urlsArr.get(position)).fit().into(photosIV);
+            container.addView(photosIV,0);
+            return photosIV;
+        }
+
+        @Override
+        public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
+            container.removeView((ImageView) object);
+        }
+    }
 }
