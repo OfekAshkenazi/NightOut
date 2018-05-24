@@ -1,60 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="70dp"
     tools:layout_editor_absoluteY="25dp"
-    android:padding="5dp">
-
-    <TextView
-        android:id="@+id/nameTV_favAdapter"
+    android:padding="5dp"
+    android:layout_margin="5dp"
+    android:background="@drawable/place_item_background_gradient">
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:text="tel aviv"
-        android:layout_toEndOf="@id/thumbRV_favAdapter"
-        android:layout_alignParentTop="true"
-        android:gravity="center_vertical"
-        android:layout_marginStart="5dp"/>
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/nameTV_favAdapter"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:text="tel aviv"
+            android:layout_toEndOf="@id/thumbRV_favAdapter"
+            android:layout_alignParentTop="true"
+            android:gravity="center_vertical"
+            android:layout_marginStart="5dp"/>
 
-    <CostumeViews.ImageRecyclerView
-        android:id="@+id/thumbRV_favAdapter"
-        android:layout_width="65dp"
-        android:layout_height="match_parent"
-        android:layout_alignParentStart="true" />
+        <CostumeViews.ImageRecyclerView
+            android:id="@+id/thumbRV_favAdapter"
+            android:layout_width="65dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true" />
 
-    <ImageButton
-        android:id="@+id/mapButton_favAdapter"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="5dp"
-        android:layout_toStartOf="@id/wazeButton_favAdapter"
-        android:background="@android:color/transparent"
-        app:srcCompat="@drawable/ic_map" />
+        <ImageButton
+            android:id="@+id/mapButton_favAdapter"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="5dp"
+            android:layout_toStartOf="@id/wazeButton_favAdapter"
+            android:background="@android:color/transparent"
+            app:srcCompat="@drawable/ic_map" />
 
-    <ImageButton
-        android:id="@+id/wazeButton_favAdapter"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginStart="5dp"
-        android:background="@android:color/transparent"
-        app:srcCompat="@drawable/ic_waze" />
+        <ImageButton
+            android:id="@+id/wazeButton_favAdapter"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="5dp"
+            android:background="@android:color/transparent"
+            app:srcCompat="@drawable/ic_waze" />
 
-    <TextView
-        android:id="@+id/addressTV_favAdapter"
-        android:layout_width="243dp"
-        android:layout_height="30dp"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="5dp"
-        android:layout_marginStart="5dp"
-        android:layout_toEndOf="@id/thumbRV_favAdapter"
-        android:layout_toStartOf="@id/mapButton_favAdapter"
-        android:gravity="center_vertical"/>
+        <TextView
+            android:id="@+id/addressTV_favAdapter"
+            android:layout_width="243dp"
+            android:layout_height="30dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="5dp"
+            android:layout_marginStart="5dp"
+            android:layout_toEndOf="@id/thumbRV_favAdapter"
+            android:layout_toStartOf="@id/mapButton_favAdapter"
+            android:gravity="center_vertical"/>
+    </RelativeLayout>
 
 
 
 
-</RelativeLayout>
+
+</LinearLayout>

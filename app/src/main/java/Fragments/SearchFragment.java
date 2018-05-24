@@ -250,7 +250,7 @@ public class SearchFragment extends Fragment implements TabLayout.OnTabSelectedL
 
             @Override
             public void onFailure(Call<ResultPojo> call, Throwable t) {
-
+                Toast.makeText(getContext(),R.string.no_internet_connection_alert,Toast.LENGTH_LONG).show();
             }
         });
     }

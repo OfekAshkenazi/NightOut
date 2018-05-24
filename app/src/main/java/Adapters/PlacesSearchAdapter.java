@@ -65,7 +65,7 @@ public class PlacesSearchAdapter extends BaseQuickAdapter<Place,PlacesSearchAdap
         View loadingView = LayoutInflater.from(mContext).inflate(R.layout.loading_layout,getRecyclerView(),false);
         setEmptyView(loadingView);
         GifView loadingImageView = getEmptyView().findViewById(R.id.loadingIV_loadLay);
-        loadingImageView.setImageResource(R.drawable.filled_glass_progress_bar_gif);
+        loadingImageView.setImageResource(R.drawable.filled_glass_loading);
         setNewData(new ArrayList<Place>());
     }
     public void activateNoResultsView(){

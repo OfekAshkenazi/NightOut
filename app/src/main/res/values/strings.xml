@@ -30,4 +30,9 @@
     <string name="activate_gps_dialog_negative_message">without the gps location your current location cannot be located.</string>
     <string name="no_result_found_message">Sorry, no results found. try to search in another location or extend the radius.</string>
     <string name="no_photos_found">No photos found</string>
+    <string name="bar_tab">Bars</string>
+    <string name="club_tab">Clubs</string>
+    <string name="pubs_nearby_btn">Pubs Nearby</string>
+    <string name="clubs_nearby_btn">Clubs Nearby</string>
+    <string name="no_internet_connection_alert">no internet connection, please enable your internet and try  again.</string>
 </resources>
