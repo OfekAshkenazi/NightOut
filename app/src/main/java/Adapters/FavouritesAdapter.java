@@ -1,7 +1,9 @@
 package Adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -46,7 +48,7 @@ public class FavouritesAdapter extends BaseQuickAdapter<Place,FavouritesAdapter.
         View view = LayoutInflater.from(mContext).inflate(R.layout.loading_layout,getRecyclerView(),false);
         setEmptyView(view);
         GifView loadingView = getEmptyView().findViewById(R.id.loadingIV_loadLay);
-        loadingView.setImageResource(R.drawable.filled_glass_progress_bar_gif);
+        loadingView.setImageResource(R.drawable.filled_glass_loading);
         setNewData(new ArrayList<Place>());
     }
 
@@ -60,7 +62,6 @@ public class FavouritesAdapter extends BaseQuickAdapter<Place,FavouritesAdapter.
 
     private void loadThumbs(ViewHolder helper, Place item) {
         ArrayList<String> photosUrl = new ArrayList<>();
-        Log.e("place name: "+item.getName(),"photos count = "+item.getPhotos().length);
         for (Place.PlacePhoto photo:item.getPhotos()) {
             StringBuilder builder = new StringBuilder(PLACE_PHOTOS_BASE_URL);
             builder.append("maxwidth=" + photo.getWidth() );
@@ -69,7 +70,8 @@ public class FavouritesAdapter extends BaseQuickAdapter<Place,FavouritesAdapter.
             builder.append("&");
             builder.append("photoreference=" + photo.getReference());
             builder.append("&");
-            builder.append("key=AIzaSyAT122JQodpYI9XlgdZdxJQ16CcVUFvr-E");
+            builder.append("key=");
+            builder.append(R.string.google_places_api_key);
             Log.e("photo url","url = "+builder.toString());
             photosUrl.add(builder.toString());
         }
@@ -98,6 +100,16 @@ public class FavouritesAdapter extends BaseQuickAdapter<Place,FavouritesAdapter.
                 @Override
                 public void onClick(View view) {
                     // open navigation with waze
+                    Place place = getData().get(getLayoutPosition());
+                    StringBuilder wazeUriBuilder = new StringBuilder();
+                    wazeUriBuilder.append("https://waze.com/ul");
+                    wazeUriBuilder.append("?ll=");
+                    wazeUriBuilder.append(place.getLat());
+                    wazeUriBuilder.append(",");
+                    wazeUriBuilder.append(place.getLng());
+                    wazeUriBuilder.append("&navigate=yes");
+                    Intent intent = new Intent(Intent.ACTION_VIEW,Uri.parse(wazeUriBuilder.toString()));
+                    view.getContext().startActivity(intent);
                 }
             });
         }
